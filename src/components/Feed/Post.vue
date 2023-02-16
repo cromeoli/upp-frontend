@@ -4,9 +4,10 @@ import axios from "axios";
 export default {
   data() {
     return {
-      posts:[],
+      posts: [],
       postsBuffer:[],
-      post:{},
+      post: {},
+      currentPost:0,
       offset: 0,
       wheelInterval: null,
       opacidad: 100,
@@ -20,11 +21,10 @@ export default {
   },
   mounted() {
     this.loadPosts();
-    console.log("En mounted")
-    this.post = this.posts[0];
   },
   methods: {
     handleWheel(event) {
+      let index = 0
       let deltaY = event.deltaY;
 
       // Reiniciar el temporizador si la rueda del ratón se mueve de nuevo
@@ -44,15 +44,33 @@ export default {
         this.accumulatedTime = 0;
       }, 700);
 
+      // Desplazamiento hacia arriba
       if(this.accumulatedTime > 29 && deltaY > 0){
         console.log("Upp!")
+
+        if(this.currentPost === 9){
+          this.post =this.post[0]
+          this.currentPost = 0
+        }else{
+          this.post = this.posts[this.currentPost++]
+        }
+
         this.postVisibility = "nonVisible"
         this.direction = 0;
         this.accumulatedTime = 0;
         this.addUpp()
       }
 
+      // Desplazamiento hacia abajo
       if(this.accumulatedTime > 30 && deltaY < 0){
+
+        if(this.currentPost === 9){
+          this.post =this.post[0]
+          this.currentPost = 0
+        }else{
+          this.post = this.posts[this.currentPost++]
+        }
+
         this.postVisibility = "nonVisible"
         this.direction = 0;
         this.accumulatedTime = 0;
@@ -78,13 +96,23 @@ export default {
       axios.get('http://localhost:3003/api/v1/posts')
           .then(response => {
             this.posts = response.data;
-            this.posts = this.shuffle(this.posts);
+            this.post = this.posts[0]
           })
           .catch(error => {
             console.log(error)
           })
-      console.log(this.posts, "Dentro de posts")
     },
+    loadBufferPosts(){
+      axios.get('http://localhost:3003/api/v1/posts')
+          .then(response => {
+            this.posts = response.data;
+            this.post = this.posts[0]
+          })
+          .catch(error => {
+            console.log(error)
+          })
+    }
+    ,
     shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -107,7 +135,8 @@ export default {
     >
       <p>Time: {{ accumulatedTime }} s</p>
       <p>Titulo: {{ post.titulo }}</p>
-      <p>Contenido: {{ this.post.contenido }}</p>
+      <p v-if="post.tipo === 'texto'">Contenido: {{ post.contenido }}</p>
+      <img v-if="post.tipo === 'imagen'" :src="post.contenido">
 
     </div>
   </div>

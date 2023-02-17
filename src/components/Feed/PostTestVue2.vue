@@ -8,7 +8,6 @@ export default {
       postsBuffer:[],
       post: {},
       currentPost:0,
-      offset: 0,
       wheelInterval: null,
       opacidad: 100,
       accumulatedTime: 0,
@@ -16,15 +15,51 @@ export default {
       timer: null,
       upp: false,
       uppVisibility:"nonVisible",
-      postVisibility:"visible"
+      postVisibility:"visible",
+      isTrackPad: undefined,
+      eventCount: 0,
+      eventCountStart: undefined,
+      deltaY: 0,
     };
   },
   mounted() {
     this.loadPosts();
+    document.addEventListener('wheel', this.detectTrackPad);
+  },
+  computed:{
+    changePostOffset(){
+      return this.isTrackPad ? 20 : 5
+    }
   },
   methods: {
+
+    detectTrackPad() {
+      const isTrackPadDefined = this.isTrackPad || typeof this.isTrackPad !== 'undefined';
+
+      if (isTrackPadDefined) return;
+
+      if (this.eventCount === 0) {
+        this.eventCountStart = performance.now();
+      }
+
+      this.eventCount++;
+
+      if (performance.now() - this.eventCountStart > 66) {
+        if (this.eventCount > 5) {
+          this.isTrackPad = true;
+          console.log('Using trackpad');
+        } else {
+          this.isTrackPad = false;
+          console.log('Using mouse');
+        }
+
+        setTimeout(() => {
+          this.eventCount = 0;
+          this.eventCountStart = undefined;
+        }, 2000);
+      }
+    },
     handleWheel(event) {
-      let index = 0
       let deltaY = event.deltaY;
 
       // Reiniciar el temporizador si la rueda del ratón se mueve de nuevo
@@ -33,9 +68,9 @@ export default {
       }
 
       if(deltaY > 0){
-        this.direction = 1
+        this.isTrackPad ? this.direction = 1 : this.direction = -1;
       }else{
-        this.direction = -1
+        this.isTrackPad ? this.direction = -1 : this.direction = 1;
       }
 
       // Actualizar el temporizador después de 500 milisegundos de inactividad
@@ -44,8 +79,9 @@ export default {
         this.accumulatedTime = 0;
       }, 700);
 
+
       // Desplazamiento hacia arriba
-      if(this.accumulatedTime > 29 && deltaY > 0){
+      if(this.accumulatedTime > this.changePostOffset && deltaY > 0){
         console.log("Upp!")
 
         if(this.currentPost === 9){
@@ -58,11 +94,14 @@ export default {
         this.postVisibility = "nonVisible"
         this.direction = 0;
         this.accumulatedTime = 0;
-        this.addUpp()
+        if(this.isTrackPad){
+          this.addUpp()
+        }
+
       }
 
       // Desplazamiento hacia abajo
-      if(this.accumulatedTime > 30 && deltaY < 0){
+      if(this.accumulatedTime > this.changePostOffset && deltaY < 0){
 
         if(this.currentPost === 9){
           this.post =this.post[0]
@@ -74,6 +113,10 @@ export default {
         this.postVisibility = "nonVisible"
         this.direction = 0;
         this.accumulatedTime = 0;
+
+        if(this.isTrackPad){
+          this.addUpp()
+        }
       }
 
       // Acumular el tiempo si la rueda del ratón se está moviendo
@@ -103,17 +146,6 @@ export default {
             console.log(error)
           })
     },
-    loadBufferPosts(){
-      axios.get('http://localhost:3003/api/v1/posts')
-          .then(response => {
-            this.posts = response.data;
-            this.post = this.posts[0]
-          })
-          .catch(error => {
-            console.log(error)
-          })
-    }
-    ,
     shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));

@@ -7,13 +7,14 @@ import CircleProgress from "vue3-circle-progress";
 
 export default {
   name: "Feed",
-    components: {Navbar, Post, OppenheimerPost, PostTestVue2}
+    components: {Navbar, Post, OppenheimerPost, PostTestVue2, dragPostTest}
 }
 
 </script>
 
 <template>
   <OppenheimerPost></OppenheimerPost>
+
 
 </template>
 

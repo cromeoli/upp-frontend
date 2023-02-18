@@ -129,7 +129,7 @@ export default {
   <div class="centerPost">
     <p v-if="upp" :class="uppVisibility">Upp!</p>
     <div
-        class="wheel-component"
+        class="post"
         :class="postVisibility"
         :style="{ transform: `translateY(${direction > 0 ? -accumulatedTime*2.5 : accumulatedTime*2.5}px)`}"
         @wheel="handleWheel"
@@ -163,7 +163,7 @@ export default {
   flex-direction: column;
 }
 
-.wheel-component {
+.post {
   width: 55vh;
   height: 40vw;
   max-height: 30rem;

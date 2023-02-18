@@ -8,95 +8,61 @@ export default {
       postsBuffer:[],
       post: {},
       currentPost:0,
-      wheelInterval: null,
-      opacidad: 100,
       accumulatedTime: 0,
-      direction:0,
-      timer: null,
       upp: false,
       uppVisibility:"nonVisible",
       postVisibility:"visible",
-      isTrackPad: undefined,
-      eventCount: 0,
-      eventCountStart: undefined,
-      deltaY: 0,
+      contador: 0,
+      tiempo: 10000, // Tiempo para cambiar de upp
+      enableCountdown: false
     };
   },
   mounted() {
     this.loadPosts();
-    document.addEventListener('mousemove', this.detectTrackPad);
-  },
-  computed:{
-    changePostOffset(){
-      return this.isTrackPad ? 20 : 5
-    }
+    this.countdown();
   },
   methods: {
-    handleWheel(event) {
-      let deltaY = event.deltaY;
+    nextPost(){
+      this.contador = 0
+      this.toggleCountdown()
+      this.postVisibility = "nonVisible"
 
-      // Reiniciar el temporizador si la rueda del ratón se mueve de nuevo
-      if (this.timer) {
-        clearTimeout(this.timer);
-      }
-
-      if(deltaY > 0){
-        this.isTrackPad ? this.direction = 1 : this.direction = -1;
-      }else{
-        this.isTrackPad ? this.direction = -1 : this.direction = 1;
-      }
-
-      // Actualizar el temporizador después de 500 milisegundos de inactividad
-      this.timer = setTimeout(() => {
-        this.postVisibility = "visible"
-        this.accumulatedTime = 0;
-      }, 700);
-
-
-      // Desplazamiento hacia arriba
-      if(this.accumulatedTime > this.changePostOffset && deltaY > 0){
-        console.log("Upp!")
-
+      setTimeout(() => {
         if(this.currentPost === 9){
-          this.post =this.post[0]
-          this.currentPost = 0
+          this.post =this.post[0];
+          this.currentPost = 0;
         }else{
-          this.currentPost++
-          this.post = this.posts[this.currentPost]
+          this.currentPost++;
+          this.post = this.posts[this.currentPost];
         }
+      }, 350)
 
-        this.postVisibility = "nonVisible"
-        this.direction = 0;
-        this.accumulatedTime = 0;
-        if(this.isTrackPad){
-          this.addUpp()
-        }
+        setTimeout(() => {
+          this.postVisibility = "visible";
+        }, 700)
+      setTimeout(() => {
+        this.toggleCountdown()
+      }, 1000)
+      },
 
-      }
+    countdown(){
+        setInterval(() => {
+          if(this.enableCountdown){
+            if (this.contador < this.tiempo) {
+              this.contador += 50; // Incrementar el contador cada 100 milisegundos
+            } else {
+              this.nextPost();
+              this.contador = 0; // Reiniciar el contador después de 5 segundos
+            }
+          }
+        }, 50); // Temporizador de 100 milisegundos
 
-      // Desplazamiento hacia abajo
-      if(this.accumulatedTime > this.changePostOffset && deltaY < 0){
-
-        if(this.currentPost === 9){
-          this.post =this.post[0]
-          this.currentPost = 0
-        }else{
-          this.post = this.posts[this.currentPost++]
-        }
-
-        this.postVisibility = "nonVisible"
-        this.direction = 0;
-        this.accumulatedTime = 0;
-
-        if(this.isTrackPad){
-          this.addUpp()
-        }
-      }
-
-      // Acumular el tiempo si la rueda del ratón se está moviendo
-      console.log(deltaY);
-      this.accumulatedTime++;
     },
+
+    toggleCountdown(){
+      this.enableCountdown = !this.enableCountdown
+    },
+
     addUpp(){
       this.upp = true;
 
@@ -110,6 +76,8 @@ export default {
         this.upp = false
       }, 1200);
     },
+
+
     loadPosts() {
       axios.get('http://localhost:3003/api/v1/posts')
           .then(response => {
@@ -120,13 +88,32 @@ export default {
             console.log(error)
           })
     },
+
+
+    loadBufferPosts(){
+      axios.get('http://localhost:3003/api/v1/posts')
+          .then(response => {
+            this.posts = response.data;
+            this.post = this.posts[0]
+          })
+          .catch(error => {
+            console.log(error)
+          })
+    },
+
+
     shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
       }
       return array;
+    },
+    stopCounter(){
+      this.contador = 0
     }
+
+
   },
 };
 </script>
@@ -138,14 +125,23 @@ export default {
         class="post"
         :class="postVisibility"
         :style="{ transform: `translateY(${direction > 0 ? -accumulatedTime*2.5 : accumulatedTime*2.5}px)`}"
-        @wheel="handleWheel"
+        @click="toggleCountdown"
+        v-on:dblclick="nextPost"
+
     >
       <p>Time: {{ accumulatedTime }} s</p>
       <p>Titulo: {{ post.titulo }}</p>
+      <p>Tiempo restante: {{ contador }}</p>
       <p v-if="post.tipo === 'texto'">Contenido: {{ post.contenido }}</p>
       <img v-if="post.tipo === 'imagen'" :src="post.contenido">
 
     </div>
+
+  </div>
+  <div class="loading"
+       :style="{ width: `${contador/100}%`}"
+  >
+
   </div>
 </template>
 
@@ -167,6 +163,13 @@ export default {
   justify-content: center;
   align-items: center;
   flex-direction: column;
+}
+
+.loading{
+  margin-top: 10px;
+  height: 5px;
+  background: black;
+  transition: 0.1s;
 }
 
 .post {

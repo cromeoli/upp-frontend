@@ -33,8 +33,10 @@ npm run dev
 
 ## Despliegue
 
-La API de Upp está desplegada usando Railway en upp-api-production.up.railway.app/api/v1
-El frontend está desplegado usando netlify: https://effervescent-swan-27247e.netlify.app/
+- La API de Upp está desplegada usando Railway en:
+  - upp-api-production.up.railway.app/api/v1
+- El frontend está desplegado usando netlify: 
+  - https://effervescent-swan-27247e.netlify.app/
 
 ## Descripción y uso
 

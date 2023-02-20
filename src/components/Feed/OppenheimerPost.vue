@@ -4,11 +4,23 @@ import axios from "axios";
 export default {
   data() {
     return {
+      props: {
+        postContent: {
+          type: String,
+          required: true
+        },
+        postType: {
+          type: String,
+          required: true
+        },
+      },
+
+      // Variables del componente
       posts: [],
       postsBuffer:[],
       post: {},
+      page: 1,
       currentPost:0,
-      accumulatedTime: 0,
       uppVisibility:"nonVisible",
       upp: false,
       contador: 0,
@@ -20,7 +32,7 @@ export default {
     };
   },
   mounted() {
-    this.loadPosts();
+    this.firstPostLoad();
     this.countdown();
 
     const uppPost = document.getElementById("post")
@@ -47,17 +59,30 @@ export default {
       window.onmousemove = null;
     }
   },
+
   methods: {
     nextPost(){
       this.contador = 0
       this.toggleCountdown()
       this.dissolveAnimation = "dissolveAnimation"
 
+      if(this.currentPost === this.posts.length - 2 || ( this.currentPost === this.posts.length - 1 )){
+        console.log("Cargando buffer...")
+        this.loadBufferPosts()
+      }
+
+      // Esperamos a que se complete la animacion de transición para cargar el post nuevo
       setTimeout(() => {
         if(this.currentPost === 9){
-          this.post =this.post[0];
+          console.log("Asignando el buffer...")
+          this.posts = ""
+          console.log(this.posts,"<-- imprimiendo posts vacios")
+          this.posts = [...this.postsBuffer]
+          console.log(`Posts: ${this.posts}`)
+          this.post = this.posts[0];
           this.currentPost = 0;
         }else{
+          console.log("ELSE")
           this.currentPost++;
           this.post = this.posts[this.currentPost];
         }
@@ -101,26 +126,35 @@ export default {
     },
 
 
-    loadPosts() {
-      axios.get('http://localhost:3003/api/v1/posts')
+    firstPostLoad() {
+      axios.get(`http://localhost:3003/api/v1/posts/pages/1`)
           .then(response => {
             this.posts = response.data;
-            this.post = this.posts[0]
+            this.post = this.posts[0];
+            this.page++;
           })
           .catch(error => {
-            console.log(error)
+            console.log(error);
           })
     },
 
 
     loadBufferPosts(){
-      axios.get('http://localhost:3003/api/v1/posts')
+      axios.get(`http://localhost:3003/api/v1/posts/pages/${this.page}`)
           .then(response => {
-            this.posts = response.data;
-            this.post = this.posts[0]
+            if(response.data.length === 0){
+              console.log(response.data, "<-- Response data")
+              console.log("Sin mas datos que cargar")
+              this.page = 1;
+              this.loadBufferPosts()
+              return 1
+            }
+            this.postsBuffer = response.data;
+            this.page++;
+            console.log("Buffer cargado")
           })
           .catch(error => {
-            console.log(error)
+            console.log(error);
           })
     },
 
@@ -132,38 +166,29 @@ export default {
       }
       return array;
     },
-    stopCounter(){
-      this.contador = 0
-    }
-
 
   },
 };
 </script>
 
 <template>
-  <div id="post" class="centerPost">
+
+  <div id="post">
     <p v-if="upp" class="uppText" :class="uppVisibility">Upp!</p>
-    <div
-        class="post"
-        :class="{slideUpAnimation, dissolveAnimation}"
-        @click="toggleCountdown"
-        v-on:dblclick="nextPost"
+      <div
+          class="post"
+          :class="{slideUpAnimation, dissolveAnimation}"
+          @click="toggleCountdown"
+          v-on:dblclick="nextPost"
+      >
+        <p>Autor: {{ post.autor }}</p>
+        <p>Titulo: {{ post.titulo }}</p>
+        <p>Tiempo restante: {{ contador }}</p>
+        <p v-if="post.tipo === 'texto'" class="textContent">Contenido: {{ post.contenido }}</p>
+        <img v-if="post.tipo === 'imagen'" :src="post.contenido" alt="Current Post">
 
-    >
-      <p>Time: {{ accumulatedTime }} s</p>
-      <p>Titulo: {{ post.titulo }}</p>
-      <p>Tiempo restante: {{ contador }}</p>
-      <p v-if="post.tipo === 'texto'">Contenido: {{ post.contenido }}</p>
-      <img v-if="post.tipo === 'imagen'" :src="post.contenido">
-
+        <div class="loading" :style="{ width: `${contador/100}%`}"></div>
     </div>
-
-  </div>
-  <div class="loading"
-       :style="{ width: `${contador/100}%`}"
-  >
-
   </div>
 </template>
 
@@ -182,11 +207,18 @@ export default {
   left: 80%;
 }
 
-.centerPost{
+.textContent{
+  font-style: normal;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.flexbox{
   display: flex;
-  justify-content: center;
+  justify-content: right;
   align-items: center;
-  flex-direction: column;
+  width: 100%;
+  height: 100%;
 }
 
 .loading{
@@ -204,10 +236,11 @@ export default {
   max-width: 25rem;
   min-width: 25rem;
 
-  background-color: red;
-  border-radius: 20px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-}
+  background: #FFFFFF;
+  border: 3px solid #000000;
+  box-shadow: 25px 25px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 52px;
+  }
 
 .slideUpAnimation{
   animation: slideUp;

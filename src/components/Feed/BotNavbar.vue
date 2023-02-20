@@ -1,7 +1,7 @@
 <script>
 
 
-import MainButton from "./MainButton.vue";
+import MainButton from "./JoinButton.vue";
 
 export default {
   name: "Navbar",

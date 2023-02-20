@@ -18,7 +18,7 @@ export default {
 <template>
   <div class="joinButtonFlex">
     <button
-        class="mainButton"
+        class="mainButton joinAppButton"
         @click="clicked"
     >
       {{ buttonText }}

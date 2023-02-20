@@ -4,7 +4,7 @@ import OppenheimerPost from "./OppenheimerPost.vue";
 import Drawer from "../Auth/Drawer.vue";
 import TopNavbar from "./TopNavbar.vue";
 import BotNavbar from "./BotNavbar.vue";
-import JoinUpp from "./MainButton.vue";
+import JoinUpp from "./JoinButton.vue";
 import UploadButton from "./UploadButton.vue";
 import axios from "axios";
 
@@ -25,23 +25,11 @@ export default {
   post: {},
   page: 1,
 
-
-  mounted() {
-    this.firstPostLoad();
-
-  },
-
   methods: {
-    firstPostLoad() {
-      axios.get(`http://localhost:3003/api/v1/posts/pages/1`)
-          .then(response => {
-            this.posts = response.data;
-            this.post = this.posts[0];
-            this.page++;
-          })
-          .catch(error => {
-            console.log(error);
-          })
+
+    handleJoinClicked(){
+      const drawer = this.$refs.drawer;
+      drawer.drawerOpened = !drawer.drawerOpened;
     },
   }
 
@@ -50,8 +38,12 @@ export default {
 
 <template>
 
+
+  <Drawer ref="drawer">
+
+  </Drawer>
+
   <!-- Responsive Background -->
-  <div class="backgroundYellow"></div>
   <div class="backgroundWhite"></div>
   <div class="backgroundBlue"></div>
   <div class="backgroundRed"></div>
@@ -75,7 +67,12 @@ export default {
 
     <section class="joinUppArea">
 
-        <JoinUpp button-text="Join Upp"></JoinUpp>
+        <JoinUpp
+            button-text="Join Upp"
+            v-on:join-clicked="handleJoinClicked"
+        >
+
+        </JoinUpp>
 
     </section>
 
@@ -83,10 +80,6 @@ export default {
       <BotNavbar></BotNavbar>
     </section>
   </div>
-
-  <Drawer></Drawer>
-
-
 
 </template>
 

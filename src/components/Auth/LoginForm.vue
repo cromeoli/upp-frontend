@@ -13,18 +13,32 @@
         <label class="formLabel">
           Email
         </label>
-        <input class="formInput" type="email">
+        <input class="formInput"
+               type="email"
+               v-model="email"
+               v-on:blur="validateEmail"
+        >
+        <p class="error" v-if="notValidEmail">Email no válido</p>
       </div>
 
       <div class="formField">
         <label class="formLabel">
           Password
         </label>
-        <input class="formInput" :type="visibility ? 'password' : 'text'">
+        <input class="formInput"
+               :type="visibility ? 'password' : 'text'"
+               v-model="password"
+               v-on:blur="validatePassword"
+        >
+
         <i @click="toggleVisibility" class="material-icons visibilityIcon">
           {{ visibility ? "visibility" : "visibility_off" }}
         </i>
       </div>
+      <p v-if="notValidPassword" class="error errorPasswd">
+        La debe contener al menos 8 caracteres, una mayúscula, un
+        un caracter especial "$@$!%*#?&" y un número.
+      </p>
 
       <button class="sendButton">
         Enter
@@ -33,11 +47,15 @@
       <span class="createAccountText">
           You don't have an account? <b><u><a @click="changeToRegister">Create one here</a></u></b>
         </span>
+      <p class="error">Las credenciales no son válidas</p>
+      <i v-if="loginError" class="material-icons" style="color: red">warning</i>
+
     </form>
   </div>
 </template>
 
 <script>
+
 export default {
   name: "LoginForm",
   props: {
@@ -48,7 +66,12 @@ export default {
   },
   data(){
     return {
-      visibility: true
+      visibility: true,
+      email:"",
+      password:"",
+      loginError: false,
+      notValidEmail: false,
+      notValidPassword: false
     }
   },
   methods: {
@@ -60,8 +83,24 @@ export default {
     },
     toggleVisibility(){
       this.visibility = !this.visibility;
-    }
+    },
+    validateEmail(){
+      const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+
+      emailRegex.test(this.email) ?
+          this.notValidEmail = false :
+          this.notValidEmail = true
   },
+    validatePassword(){
+      const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$/
+      ;
+
+      passwordRegex.test(this.password) ?
+          this.notValidPassword = false :
+          this.notValidPassword = true
+    }
+  }
+
 
 }
 </script>
@@ -74,12 +113,34 @@ export default {
   flex-direction: column;
 }
 
+.error{
+  color: red;
+  text-align: left;
+  margin-top: 0.3em;
+}
+
+.errorPasswd{
+  text-align: center;
+}
+
 .formInput{
   background: white;
   height: 2em;
   text-align: left;
   padding-left: 1em;
+  box-shadow: .5px 1px 0 0 black,
+  1.5px 2px 0 0 black,
+  2.5px 3px 0 0 black,
+  3.5px 4px 0 0 black,
+  4.5px 5px 0 0 black,
+  5.5px 6px 0 0 black;
+  transform: translate(-3.5px, -4px);
+  transition: 1s;
+}
 
+.formInput:focus{
+  transform: translate(3.5px, 4px);
+  box-shadow: none
 }
 
 .sendButton{
@@ -148,8 +209,8 @@ export default {
 
 .visibilityIcon{
   position: absolute;
-  top: 35px;
-  right: 8px;
+  top: 36px;
+  right: -34px;
   cursor: pointer;
 }
 

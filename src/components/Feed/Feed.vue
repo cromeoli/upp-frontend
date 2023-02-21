@@ -6,8 +6,8 @@ import TopNavbar from "./TopNavbar.vue";
 import BotNavbar from "./BotNavbar.vue";
 import JoinUpp from "./JoinButton.vue";
 import UploadButton from "./UploadButton.vue";
-import axios from "axios";
 import PostDataArea from "./PostDataArea.vue";
+import axios from "axios";
 
 export default {
   name: "Feed",
@@ -23,7 +23,6 @@ export default {
     },
   // Variables del componente
   posts: [],
-  postsBuffer:[],
   post: {},
   page: 1,
 
@@ -33,7 +32,7 @@ export default {
       const drawer = this.$refs.drawer;
       drawer.drawerOpened = !drawer.drawerOpened;
     },
-  }
+  },
 
 }
 </script>

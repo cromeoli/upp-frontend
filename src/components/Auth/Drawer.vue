@@ -9,6 +9,7 @@
         <RegisterForm
             :is-drawer-open="drawerOpened"
             @changeToLogin="toggleRegister"
+            @closeTheDrawer="closeDrawer"
         >
         </RegisterForm>
       </div>

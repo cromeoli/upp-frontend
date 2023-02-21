@@ -8,7 +8,7 @@
         close
       </i>
 
-      <h2 class="registerHeader"> Register </h2>
+      <h2 class="registerHeader"> Sign <i>Upp!</i> </h2>
 
       <div class="formField">
         <label class="formLabel">
@@ -18,13 +18,11 @@
                type="text"
                v-model="username"
                v-on:blur="validateNick"
+               :class="{'formInputError': notValidUsername}"
         >
         <i class="material-icons visibilityIcon">done</i>
       </div>
-      <p v-if="notValidUsername" class="error errorPasswd">
-        El nickname no puede contener espacios y
-        debe ser mayor a 2 caracteres
-      </p>
+
 
       <div class="formField">
         <label class="formLabel">
@@ -34,9 +32,10 @@
                type="email"
                v-model="email"
                v-on:blur="validateEmail"
+               :class="{'formInputError': notValidEmail}"
         >
       </div>
-      <p v-if="notValidEmail" class="error errorPasswd">El email debe estar en formato ***@example con una extensión valida</p>
+
 
       <div class="formField">
         <label class="formLabel">
@@ -46,15 +45,12 @@
                :type="visibility ? 'password' : 'text'"
                v-model="password"
                v-on:blur="validatePassword"
+               :class="{'formInputError': notValidPassword}"
         >
         <i @click="toggleVisibility" class="material-icons visibilityIcon">
           {{ visibility ? "visibility" : "visibility_off" }}
         </i>
       </div>
-      <p v-if="notValidPassword" class="error errorPasswd">
-        La debe contener al menos 8 caracteres, una mayúscula, un
-        símbolo y un número
-      </p>
 
       <div class="formField">
         <label class="formLabel">
@@ -64,12 +60,28 @@
                :type="visibility ? 'password' : 'text'"
                v-model="confirmPassword"
                v-on:blur="areEqualPasswords"
+               :class="{'formInputError': notEqualPasswords}"
         >
         <i @click="toggleVisibility" class="material-icons visibilityIcon">
           {{ visibility ? "visibility" : "visibility_off" }}
         </i>
+
+      </div>
+
+      <div class="errorBox">
+        <p v-if="notValidUsername" class="error errorPasswd">
+          <i class="material-icons Fill: 1 Weight: 500 Grade: 0 Optical Size: 48">priority_high</i>  El nickname no puede contener espacios y
+          debe ser mayor a 2 caracteres
+        </p>
+        <p v-if="notValidEmail" class="error errorPasswd">
+          <i class="material-icons Fill: 1 Weight: 500 Grade: 0 Optical Size: 48">priority_high</i> El email debe estar en formato ***@example con una extensión valida
+        </p>
+        <p v-if="notValidPassword" class="error errorPasswd">
+          <i class="material-icons Fill: 1 Weight: 500 Grade: 0 Optical Size: 48">priority_high</i> La debe contener al menos 8 caracteres, una mayúscula, un
+          símbolo y un número
+        </p>
         <p v-if="notEqualPasswords" class="error">
-          Las contraseñas no coinciden
+          <i class="material-icons Fill: 1 Weight: 500 Grade: 0 Optical Size: 48">priority_high</i> Las contraseñas no coinciden
         </p>
       </div>
 
@@ -78,7 +90,7 @@
       </button>
 
       <span class="createAccountText">
-          Already have an account? <b><u><a @click="changeToLogin">Log In</a></u></b>
+          Already have an account? <b><u><a @click="changeToLogin">Sign In</a></u></b>
         </span>
     </form>
   </div>
@@ -161,6 +173,19 @@ export default {
   flex-direction: column;
 }
 
+.errorBox{
+  margin-top: .8em;
+  width: 90%;
+  display: flex;
+  justify-content: left;
+  align-items: flex-start;
+  flex-direction: column;
+  background: #DFC25A;
+  text-align: left;
+  padding: 0.5em;
+  transition: .7s;
+}
+
 .formInput{
   background: white;
   height: 2em;
@@ -176,12 +201,26 @@ export default {
   transition: 1s;
 }
 
+.formInputError{
+  border: 2px solid red;
+
+  box-shadow: .5px 1px 0 0 red,
+  1.5px 2px 0 0 red,
+  2.5px 3px 0 0 red,
+  3.5px 4px 0 0 red,
+  4.5px 5px 0 0 red,
+  5.5px 6px 0 0 red;
+}
+
 .formInput:focus{
   transform: translate(3.5px, 4px);
   box-shadow: none
 }
 
 .error{
+  display: flex;
+  justify-content: left;
+  align-items: flex-start;
   color: red;
   text-align: left;
   margin-top: 0.3em;

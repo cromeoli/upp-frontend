@@ -8,7 +8,7 @@
         close
       </i>
 
-      <h2 class="registerHeader"> Log In </h2>
+      <h2 class="registerHeader"> Sign In </h2>
       <div class="formField">
         <label class="formLabel">
           Email
@@ -17,6 +17,7 @@
                type="email"
                v-model="email"
                v-on:blur="validateEmail"
+               :class="{'formInputError': notValidEmail}"
         >
         <p class="error" v-if="notValidEmail">Email no válido</p>
       </div>
@@ -29,6 +30,7 @@
                :type="visibility ? 'password' : 'text'"
                v-model="password"
                v-on:blur="validatePassword"
+               :class="{'formInputError': notValidPassword}"
         >
 
         <i @click="toggleVisibility" class="material-icons visibilityIcon">
@@ -44,10 +46,22 @@
         Enter
       </button>
 
+      <div class="errorBox">
+        <p v-if="notValidEmail" class="error errorPasswd">
+          <i class="material-icons Fill: 1 Weight: 500 Grade: 0 Optical Size: 48">priority_high</i> El email debe estar en formato ***@example con una extensión valida
+        </p>
+        <p v-if="notValidPassword"
+           class="error errorPasswd"
+        >
+          <i class="material-icons Fill: 1 Weight: 500 Grade: 0 Optical Size: 48">priority_high</i> La debe contener al menos 8 caracteres, una mayúscula, un
+          símbolo y un número
+        </p>
+      </div>
+
       <span class="createAccountText">
           You don't have an account? <b><u><a @click="changeToRegister">Create one here</a></u></b>
         </span>
-      <p class="error">Las credenciales no son válidas</p>
+      <p v-if="loginError" class="error">Las credenciales no son válidas</p>
       <i v-if="loginError" class="material-icons" style="color: red">warning</i>
 
     </form>
@@ -107,6 +121,21 @@ export default {
 
 <style scoped>
 
+.errorBox{
+  margin-top: .8em;
+  width: 90%;
+  display: flex;
+  justify-content: left;
+  align-items: flex-start;
+  flex-direction: column;
+  background: #DFC25A;
+  text-align: left;
+  padding: 0.5em;
+  transition: .7s;
+}
+
+
+
 .formField{
   position: relative;
   display: flex;
@@ -114,9 +143,13 @@ export default {
 }
 
 .error{
+  display: flex;
+  justify-content: left;
+  align-items: flex-start;
   color: red;
   text-align: left;
   margin-top: 0.3em;
+
 }
 
 .errorPasswd{
@@ -136,6 +169,17 @@ export default {
   5.5px 6px 0 0 black;
   transform: translate(-3.5px, -4px);
   transition: 1s;
+}
+
+.formInputError{
+  border: 2px solid red;
+
+  box-shadow: .5px 1px 0 0 red,
+  1.5px 2px 0 0 red,
+  2.5px 3px 0 0 red,
+  3.5px 4px 0 0 red,
+  4.5px 5px 0 0 red,
+  5.5px 6px 0 0 red;
 }
 
 .formInput:focus{

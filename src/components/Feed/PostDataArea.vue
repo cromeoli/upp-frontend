@@ -49,7 +49,7 @@ export default {
 .username{
   align-self: center;
   margin-bottom: 4em;
-  margin-right: 5em;
+  margin-right: 6.2em;
   font-family: "IBM Plex Mono";
   font-style: italic;
   font-weight: 600;

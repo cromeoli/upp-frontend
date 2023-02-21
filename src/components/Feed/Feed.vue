@@ -7,10 +7,12 @@ import BotNavbar from "./BotNavbar.vue";
 import JoinUpp from "./JoinButton.vue";
 import UploadButton from "./UploadButton.vue";
 import axios from "axios";
+import PostDataArea from "./PostDataArea.vue";
 
 export default {
   name: "Feed",
     components: {
+      PostDataArea,
       UploadButton,
       JoinUpp,
     Navbar,
@@ -62,7 +64,7 @@ export default {
     </section>
 
     <section class="postDataArea">
-
+      <PostDataArea></PostDataArea>
     </section>
 
     <section class="joinUppArea">

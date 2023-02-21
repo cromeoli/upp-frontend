@@ -30,7 +30,7 @@ export default {
   font-size: 1.5rem;
   gap: 2rem;
   align-items: center;
-  padding-bottom: 1em;
+  padding-bottom: 3.6em;
 }
 
 .routerText{

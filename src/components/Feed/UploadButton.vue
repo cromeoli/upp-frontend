@@ -1,6 +1,6 @@
 <template>
 <button class="uploadButton">
-  +
+  <i class="material-icons">add</i>
 </button>
 </template>
 
@@ -12,7 +12,11 @@ export default {
 
 <style scoped>
 .uploadButton{
+  display: flex;
+  justify-content: center;
+  align-items: center;
   height: 15rem;
+  width: 3rem;
   border-radius: 49px;
   background: white;
   border: 3px solid #000000;

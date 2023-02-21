@@ -8,7 +8,6 @@ export default {
   },
   methods: {
     clicked(){
-      console.log("joinClicked")
       this.$emit("join-clicked");
     }
   }
@@ -16,14 +15,12 @@ export default {
 </script>
 
 <template>
-  <div class="joinButtonFlex">
     <button
         class="mainButton"
         @click="clicked"
     >
       {{ buttonText }}
     </button>
-  </div>
 </template>
 
 <style scoped>

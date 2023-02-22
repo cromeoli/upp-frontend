@@ -19,7 +19,6 @@
                v-on:blur="validateEmail"
                :class="{'formInputError': notValidEmail}"
         >
-        <p class="error" v-if="notValidEmail">Email no válido</p>
       </div>
 
       <div class="formField">
@@ -37,10 +36,6 @@
           {{ visibility ? "visibility" : "visibility_off" }}
         </i>
       </div>
-      <p v-if="notValidPassword" class="error errorPasswd">
-        La debe contener al menos 8 caracteres, una mayúscula, un
-        un caracter especial "$@$!%*#?&" y un número.
-      </p>
 
       <button class="sendButton">
         Enter

@@ -2,8 +2,8 @@
   <div class="postData">
     <router-link to="/comingSoon" class="routerText circle">Global</router-link>
     <div class="titleAndUsername">
-      <h1 class="title">Titulo de la publicación</h1>
-      <h2 class="username">@Usuario</h2>
+      <h1 class="title">{{ post.titulo }}</h1>
+      <h2 class="username">{{ post.autor }}</h2>
     </div>
 
   </div>
@@ -12,7 +12,13 @@
 
 <script>
 export default {
-  name: "PostDataArea"
+  name: "PostDataArea",
+  props: {
+    post: {
+      type: Object,
+      required: true
+    }
+  }
 }
 </script>
 

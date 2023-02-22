@@ -114,6 +114,7 @@ export default {
 }
 
 .content{
+  user-select: none;
   display: flex;
   justify-content: center;
   align-items: center;

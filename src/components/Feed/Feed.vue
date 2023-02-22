@@ -28,6 +28,7 @@ export default {
     return {
       page:1,
       posts:[],
+      bufferPosts:[],
       post:{},
       currentPost: 0,
       reloadWhen: 0,
@@ -66,6 +67,9 @@ export default {
                 this.loadPosts()
               }
               this.posts = response.data;
+
+              this.reloadWhen = this.posts.length - 2 <= 0 ? 1 : this.posts.length - 2;
+
               this.post = this.posts[0];
               this.nextPage();
               this.loading = false;
@@ -81,9 +85,30 @@ export default {
       this.page++;
     },
 
-    loadMagazine() {
-      this.reloadWhen = this.ammo.length - 2 <= 0 ? 1 : this.ammo.length - 2;
-      this.post = this.magazine[0];
+    reload(){
+      axios.get(`http://localhost:3003/api/v1/posts/pages/${this.page}`)
+          .then(response => {
+            if(response){
+              if(response.data.length === 0){
+                console.log(response.data)
+                console.log("Sin mas datos que cargar")
+                this.page = 1
+                this.reloadWhen = 0
+              }
+              this.bufferPosts = response.data;
+
+              this.reloadWhen = this.bufferPosts.length - 2 <= 0 ? 1 : this.bufferPosts.length - 2;
+
+              this.post = this.posts[0];
+              this.nextPage();
+              this.loading = false;
+              console.log("Feed - Posts REcargados >:)")
+            }
+
+          })
+          .catch(error => {
+            console.log(error);
+          })
     },
 
     nextPost(){
@@ -91,16 +116,20 @@ export default {
       this.timeRemaining = 0
       this.toggleCountdown()
       this.dissolveAnimation = "dissolveAnimation"
+
       this.$emit('currentpost',this.currentPost)
 
-      this.reloadWhen === 0 ? this.$emit('needMorePostsHere') : "";
+      this.reloadWhen--
+      this.reloadWhen === 0 ? this.reload() : "";
+
 
       // Esperamos a que se complete la animacion de transición para cargar el post nuevo
       setTimeout(() => {
         if(this.currentPost === 9){
+          this.posts = [...this.bufferPosts]
           this.post = this.posts[0];
-          console.log(this.post)
           this.currentPost = 0;
+
         }else{
           console.log("ELSE")
           this.currentPost++;

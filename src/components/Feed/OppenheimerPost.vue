@@ -14,6 +14,10 @@ export default {
     dissolveAnimation:{
       type: String,
       required: true
+    },
+    enableCountdown:{
+      type: Boolean,
+      required: true
     }
   },
   data() {
@@ -90,6 +94,7 @@ export default {
 
     </div>
     <div class="loading" :style="{ width: `${timeRemaining/100}%`}"></div>
+    <i class="material-icons pause" v-if="!enableCountdown">pause</i>
   </div>
 </template>
 
@@ -102,7 +107,8 @@ export default {
   opacity: 100;
 }
 
-.upp{
+.pause{
+  position: absolute;
 
 }
 
@@ -127,6 +133,7 @@ export default {
   font-family: Inter;
   font-weight: 600;
   font-size: 38px;
+  cursor: pointer;
 }
 
 .flexbox{

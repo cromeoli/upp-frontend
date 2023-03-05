@@ -9,10 +9,12 @@ import UploadButton from "./UploadButton.vue";
 import PostDataArea from "./PostDataArea.vue";
 import axios from "axios";
 import MockupPost from "./mockupPost.vue";
+import UploadContentMenu from "./uploadContentMenu.vue";
 
 export default {
   name: "Feed",
     components: {
+      UploadContentMenu,
       MockupPost,
       PostDataArea,
       UploadButton,
@@ -52,6 +54,11 @@ export default {
   },
   methods: {
 
+    handleUploadClicked(){
+      const upload = this.$refs.upload;
+      upload.uploadOpened = !upload.uploadOpened
+    }
+    ,
     handleJoinClicked(){
       const drawer = this.$refs.drawer;
       drawer.drawerOpened = !drawer.drawerOpened;
@@ -181,6 +188,11 @@ export default {
 
   </Drawer>
 
+  <!-- upload Content-->
+  <uploadContentMenu ref="upload" v-on:closeUpload="handleUploadClicked">
+
+  </uploadContentMenu>
+
   <!-- Responsive Background -->
   <div class="backgroundWhite"></div>
   <div class="backgroundBlue"></div>
@@ -194,7 +206,7 @@ export default {
 
     <section class="postArea">
       <div id="post" class="flexbox">
-        <UploadButton></UploadButton>
+        <UploadButton v-on:upload-clicked="handleUploadClicked"></UploadButton>
         <OppenheimerPost :post="post"
                          :timeRemaining="timeRemaining"
                          @nextPost="nextPost"
@@ -202,6 +214,7 @@ export default {
                          @uppGived="nextPost"
                          v-if="!loading"
                          :dissolveAnimation="dissolveAnimation"
+                         :enableCountdown="enableCountdown"
         >
         </OppenheimerPost>
         <MockupPost v-else></MockupPost>
@@ -235,6 +248,5 @@ export default {
 </template>
 
 <style scoped>
-
 
 </style>

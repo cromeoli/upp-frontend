@@ -1,5 +1,5 @@
 <template>
-<button class="uploadButton">
+<button class="uploadButton" @click="this.$emit('upload-clicked')">
   <i class="material-icons">add</i>
 </button>
 </template>

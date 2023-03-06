@@ -37,14 +37,25 @@
         </i>
       </div>
 
-      <button class="sendButton">
+      <button v-if="!notValidEmail && !notValidPassword"
+              class="sendButton"
+              @click="login"
+              type="button"
+      >
         Enter
       </button>
 
       <div class="errorBox">
         <p v-if="notValidEmail" class="error errorPasswd">
-          <i class="material-icons Fill: 1 Weight: 500 Grade: 0 Optical Size: 48">priority_high</i> El email debe estar en formato ***@example con una extensión valida
+          <i class="material-icons Fill: 1 Weight: 500 Grade: 0 Optical Size: 48">priority_high</i>
+          El email debe estar en formato ***@example con una extensión valida
         </p>
+
+        <p v-if="loginError" class="error errorPasswd">
+          <i class="material-icons Fill: 1 Weight: 500 Grade: 0 Optical Size: 48">priority_high</i>
+          Login Incorrecto
+        </p>
+
         <p v-if="notValidPassword"
            class="error errorPasswd"
         >
@@ -56,14 +67,19 @@
       <span class="createAccountText">
           You don't have an account? <b><u><a @click="changeToRegister">Create one here</a></u></b>
         </span>
-      <p v-if="loginError" class="error">Las credenciales no son válidas</p>
-      <i v-if="loginError" class="material-icons" style="color: red">warning</i>
+
+      <span v-if="loged" class="success">
+          Logueado con éxito!!
+        </span>
 
     </form>
   </div>
 </template>
 
 <script>
+
+import axios from "axios";
+import bcrypt from "bcryptjs";
 
 export default {
   name: "LoginForm",
@@ -80,7 +96,8 @@ export default {
       password:"",
       loginError: false,
       notValidEmail: false,
-      notValidPassword: false
+      notValidPassword: false,
+      loged:false
     }
   },
   methods: {
@@ -107,6 +124,34 @@ export default {
       passwordRegex.test(this.password) ?
           this.notValidPassword = false :
           this.notValidPassword = true
+    },
+    async login() {
+      try {
+        const response = await axios.post('http://localhost:3003/api/v1/auth/users', {
+          email: this.email,
+          passwd: this.password
+        });
+
+        if (response.status === 200) {
+          this.loginError = false
+          localStorage.setItem("id", response.data.id)
+          localStorage.setItem("username", response.data.username)
+          this.loged = true
+          this.$emit("isLoged")
+        }
+      } catch (error) {
+        if (error.response.status === 401) {
+          this.loginError = true
+          console.error("Unauthorized");
+          return;
+        }
+        console.error(error);
+      }
+
+      setTimeout(() => {
+        this.loged = false
+        this.closeTheDrawer()
+      }, 1500);
     }
   }
 
@@ -194,6 +239,14 @@ export default {
 .sendButton:hover{
   background: black;
   color: white;
+}
+
+.success{
+  background: greenyellow;
+  color: black;
+  font-family: Cabin;
+  padding: 0.5em;
+  margin: 0.5em;
 }
 
 .formLabel{

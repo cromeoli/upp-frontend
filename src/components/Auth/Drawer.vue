@@ -19,6 +19,7 @@
             @closeTheDrawer="closeDrawer"
             @changeToRegister="toggleRegister"
             :is-drawer-open="drawerOpened"
+            @isLoged="this.$emit('isLoged')"
         >
         </LoginForm>
       </div>

@@ -35,14 +35,13 @@ export default {
 
     window.onmousedown = e => {
       uppPost.dataset.mouseDownAt = e.clientY;
-      console.log("Clickk");
+      console.log("Clickk - Opp Post");
       window.onmousemove = e => {
         if(uppPost.dataset.mouseDownAt === "0") return;
         const mouseDelta = parseFloat(uppPost.dataset.mouseDownAt) - e.clientY,
             maxDelta = window.innerHeight / 2;
 
         this.deltaY = (mouseDelta / maxDelta) * 100;
-        console.log(this.deltaY)
       }
     }
 

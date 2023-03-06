@@ -18,9 +18,9 @@
                type="text"
                v-model="username"
                v-on:blur="validateNick"
-               :class="{'formInputError': notValidUsername}"
+               :class="{'formInputError': notValidUsername || nicknameInUse}"
         >
-        <i class="material-icons visibilityIcon">done</i>
+        <i class="material-icons visibilityIcon">{{ nickIcon }}</i>
       </div>
 
 
@@ -32,7 +32,7 @@
                type="email"
                v-model="email"
                v-on:blur="validateEmail"
-               :class="{'formInputError': notValidEmail}"
+               :class="{'formInputError': notValidEmail || emailInUse}"
         >
       </div>
 
@@ -73,6 +73,14 @@
           <i class="material-icons Fill: 1 Weight: 500 Grade: 0 Optical Size: 48">priority_high</i>  El nickname no puede contener espacios y
           debe ser mayor a 2 caracteres
         </p>
+        <p v-if="nicknameInUse" class="error errorPasswd">
+          <i class="material-icons Fill: 1 Weight: 500 Grade: 0 Optical Size: 48">priority_high</i>
+          El nickname ya está en uso
+        </p>
+        <p v-if="emailInUse" class="error errorPasswd">
+          <i class="material-icons Fill: 1 Weight: 500 Grade: 0 Optical Size: 48">priority_high</i>
+          Ese email ya está en uso
+        </p>
         <p v-if="notValidEmail" class="error errorPasswd">
           <i class="material-icons Fill: 1 Weight: 500 Grade: 0 Optical Size: 48">priority_high</i> El email debe estar en formato ***@example con una extensión valida
         </p>
@@ -85,18 +93,33 @@
         </p>
       </div>
 
-      <button class="sendButton">
+      <button v-if="!notEqualPasswords
+                    && !notValidUsername
+                    && !notValidEmail
+                    && !notValidPassword
+                    && !nicknameInUse
+                    && !emailInUse"
+              class="sendButton"
+              @click="registerUser"
+              type="button"
+      >
         Send
       </button>
 
       <span class="createAccountText">
           Already have an account? <b><u><a @click="changeToLogin">Sign In</a></u></b>
         </span>
+      <span v-if="registered" class="success">
+          Success!! Welcome to Upp
+        </span>
     </form>
   </div>
 </template>
 
 <script>
+
+import axios from "axios";
+import bcrypt from 'bcryptjs';
 
 export default {
   name: "LoginForm",
@@ -112,11 +135,16 @@ export default {
       username:"",
       email: "",
       password:"",
+      nickIcon:"verified",
       confirmPassword:"",
       notValidUsername: false,
+      nicknameInUse: false,
       notValidEmail: false,
+      emailInUse: false,
       notValidPassword: false,
       notEqualPasswords: false,
+      noErrors: true,
+      registered: false
     }
   },
   methods: {
@@ -129,8 +157,21 @@ export default {
     toggleVisibility(){
       this.visibility = !this.visibility;
     },
+    hashPassword(password){
+      const saltRounds = 5;
+      return bcrypt.hashSync(password, saltRounds);
+    },
     validateEmail(){
       const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+
+      axios.get(`http://localhost:3003/api/v1/users/email/${this.email}`)
+          .then(response => {
+            if(response.data){
+              this.emailInUse = true
+            } else {
+              this.emailInUse = false
+            }
+          })
 
       emailRegex.test(this.email) ?
           this.notValidEmail = false :
@@ -157,9 +198,40 @@ export default {
     validateNick(){
       const nickRegex = /^[^\s]{2,15}$/;
 
+      axios.get(`http://localhost:3003/api/v1/users/user/${this.username}`)
+          .then(response => {
+            if(response.data){
+              this.nickIcon = "error"
+              this.nicknameInUse = true
+              return 0;
+            } else {
+              this.nickIcon = "verified"
+              this.nicknameInUse = false
+            }
+          })
+
       nickRegex.test(this.username) ?
           this.notValidUsername = false :
           this.notValidUsername = true
+    },
+    registerUser(){
+      axios.post('http://localhost:3003/api/v1/users', {
+        username: this.username,
+        email: this.email,
+        passwd: this.hashPassword(this.password)
+      })
+          .then(response => {
+            localStorage.setItem("id", response.data.newUser.id)
+            localStorage.setItem("username", response.data.newUser.username)
+            this.registered = true
+            this.$emit("isLoged")
+          })
+          .catch(error => console.error(error));
+
+      setTimeout(() => {
+        this.registered = false
+        this.closeTheDrawer()
+      }, 1500);
     }
   }
 }
@@ -282,6 +354,14 @@ export default {
   4.5px 5px 0 0 black,
   5.5px 6px 0 0 black;
   transform: translate(-5.5px, -6px);
+}
+
+.success{
+  background: greenyellow;
+  color: black;
+  font-family: Cabin;
+  padding: 0.5em;
+  margin: 0.5em;
 }
 
 .closeDrawerX{

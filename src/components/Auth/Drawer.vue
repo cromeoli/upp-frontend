@@ -10,6 +10,7 @@
             :is-drawer-open="drawerOpened"
             @changeToLogin="toggleRegister"
             @closeTheDrawer="closeDrawer"
+            @isLoged="this.$emit('isLoged')"
         >
         </RegisterForm>
       </div>

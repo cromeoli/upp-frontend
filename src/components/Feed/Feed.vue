@@ -10,10 +10,12 @@ import PostDataArea from "./PostDataArea.vue";
 import axios from "axios";
 import MockupPost from "./mockupPost.vue";
 import UploadContentMenu from "./uploadContentMenu.vue";
+import ProfileButton from "./profileButton.vue";
 
 export default {
   name: "Feed",
     components: {
+      ProfileButton,
       UploadContentMenu,
       MockupPost,
       PostDataArea,
@@ -39,7 +41,8 @@ export default {
       enableCountdown: false,
       postloading: false,
       loading: true,
-      dissolveAnimation:""
+      dissolveAnimation:"",
+      isLoged: false
      }
     },
   mounted() {
@@ -184,7 +187,9 @@ export default {
 <template>
 
 
-  <Drawer ref="drawer">
+  <Drawer ref="drawer"
+          @isLoged="isLoged = true"
+  >
 
   </Drawer>
 
@@ -206,7 +211,7 @@ export default {
 
     <section class="postArea">
       <div id="post" class="flexbox">
-        <UploadButton v-on:upload-clicked="handleUploadClicked"></UploadButton>
+        <UploadButton v-if="isLoged" v-on:upload-clicked="handleUploadClicked"></UploadButton>
         <OppenheimerPost :post="post"
                          :timeRemaining="timeRemaining"
                          @nextPost="nextPost"
@@ -229,9 +234,14 @@ export default {
       </PostDataArea>
     </section>
 
+    <section  class="profileArea">
+      <ProfileButton @logout="isLoged = false" v-if="isLoged"/>
+    </section>
+
     <section class="joinUppArea">
 
         <JoinUpp
+            v-if="!isLoged"
             button-text="Join Upp"
             v-on:join-clicked="handleJoinClicked"
         >

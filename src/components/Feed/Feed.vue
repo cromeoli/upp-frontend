@@ -66,26 +66,18 @@ export default {
       const drawer = this.$refs.drawer;
       drawer.drawerOpened = !drawer.drawerOpened;
     },
-    loadPosts(){
+    loadPosts() {
       axios.get(`http://localhost:3003/api/v1/posts/pages/${this.page}`)
           .then(response => {
-            if(response){
-              if(response.data.length === 0){
-                console.log(response.data)
-                console.log("Sin mas datos que cargar")
-                this.page = 1
-                this.loadPosts()
-              }
-              this.posts = response.data;
+            if (response && response.data && response.data.length > 0) {
 
+              this.posts = [];
+              this.posts.push(...response.data);
               this.reloadWhen = this.posts.length - 2 <= 0 ? 1 : this.posts.length - 2;
-
               this.post = this.posts[0];
-              this.nextPage();
               this.loading = false;
-              console.log("Feed - Posts cargados >:)")
+              console.log("New posts loaded");
             }
-
           })
           .catch(error => {
             console.log(error);
@@ -96,23 +88,35 @@ export default {
     },
 
     reload(){
+      this.nextPage();
+      console.log("reload() -> Aumento página y cargo bufferposts")
       axios.get(`http://localhost:3003/api/v1/posts/pages/${this.page}`)
           .then(response => {
             if(response){
               if(response.data.length === 0){
-                console.log(response.data)
                 console.log("Sin mas datos que cargar")
-                this.page = 1
-                this.reloadWhen = 0
+                this.page = 1;
+                this.postsEndReached();
+
               }
               this.bufferPosts = response.data;
 
-              this.reloadWhen = this.bufferPosts.length - 2 <= 0 ? 1 : this.bufferPosts.length - 2;
-
               this.post = this.posts[0];
-              this.nextPage();
               this.loading = false;
-              console.log("Feed - Posts REcargados >:)")
+
+            }
+
+          })
+          .catch(error => {
+            console.log(error);
+          })
+    },
+
+    postsEndReached(){
+      axios.get(`http://localhost:3003/api/v1/posts/pages/1`)
+          .then(response => {
+            if(response){
+              this.bufferPosts = response.data;
             }
 
           })
@@ -135,8 +139,10 @@ export default {
 
       // Esperamos a que se complete la animacion de transición para cargar el post nuevo
       setTimeout(() => {
-        if(this.currentPost === 9){
+        if(this.currentPost === this.posts.length -1){
+          this.reloadWhen = this.posts.length - 2 <= 0 ? 1 : this.posts.length - 2;
           this.posts = [...this.bufferPosts]
+          this.bufferPosts = []
           this.post = this.posts[0];
           this.currentPost = 0;
 
@@ -151,8 +157,7 @@ export default {
         this.toggleCountdown()
         this.dissolveAnimation = ""
       }, 1003)
-    }
-    ,
+    },
 
     countdown(){
       console.log("Llamo Countdown")
@@ -170,14 +175,6 @@ export default {
 
     toggleCountdown(){
       this.enableCountdown = !this.enableCountdown
-    },
-
-    shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array;
     },
   },
 
@@ -212,12 +209,12 @@ export default {
     <section class="postArea">
       <div id="post" class="flexbox">
         <UploadButton v-if="isLoged" v-on:upload-clicked="handleUploadClicked"></UploadButton>
-        <OppenheimerPost :post="post"
+        <OppenheimerPost v-if="post && !loading"
                          :timeRemaining="timeRemaining"
                          @nextPost="nextPost"
                          @click="toggleCountdown"
                          @uppGived="nextPost"
-                         v-if="!loading"
+                         :post="post"
                          :dissolveAnimation="dissolveAnimation"
                          :enableCountdown="enableCountdown"
         >
@@ -228,8 +225,9 @@ export default {
 
     <section class="postDataArea">
       <PostDataArea
+          v-if="post && !loading"
           :post="post"
-          v-if="!loading">
+          >
 
       </PostDataArea>
     </section>
